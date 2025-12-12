@@ -34,13 +34,12 @@
 /* apply Bootstrap-like invalid look to all inputs when modal-invalid */
 .modal-invalid .form-control,
 .modal-invalid .form-select {
-  border-color: #dc3545;        /* bootstrap danger */
+  border-color: red;        /* bootstrap danger */
   box-shadow: 0 0 0 .15rem rgba(220,53,69,.075);
 }
 
 /* make labels red */
 .modal-invalid .form-label {
-  color: #dc3545;
   font-weight: 600;
 }
 .input-error {
@@ -306,51 +305,58 @@
           <h5 class="modal-title">Add New Contact</h5>
           <button class="btn-close" data-bs-dismiss="modal"></button>
         </div>
+<div class="modal-body">
+  <div class="row g-2">
+    <div class="col-md-4">
+      <label class="form-label">Title <span class="requiredStar text-danger">*</span></label>
+      <select id="newTitle" class="form-select" data-required="true">
+        <option>Mr</option><option>Mrs</option><option>Ms</option><option>Dr</option>
+      </select>
+    </div>
 
-        <div class="modal-body">
-          <div class="row g-2">
-            <div class="col-md-4">
-              <label class="form-label">Title</label>
-              <select id="newTitle" class="form-select">
-                <option>Mr</option><option>Mrs</option><option>Ms</option><option>Dr</option>
-              </select>
-            </div>
-            <div class="col-md-4">
-  <label class="form-label">First Name <span class="requiredStar text-danger">*</span></label>
-  <input id="newFirst" class="form-control" data-required="true">
-</div>
+    <div class="col-md-4">
+      <label class="form-label">First Name <span class="requiredStar text-danger">*</span></label>
+      <input id="newFirst" class="form-control" data-required="true" />
+      <div class="error-text" id="err-newFirst" style="display:none">First name is required</div>
+    </div>
 
-<div class="col-md-4">
-  <label class="form-label">Last Name <span class="requiredStar text-danger">*</span></label>
-  <input id="newLast" class="form-control" data-required="true">
-</div>
-<div class="col-md-4">
-  <label class="form-label">Mobile1 <span class="requiredStar text-danger">*</span></label>
-  <input id="newFirst" class="form-control" data-required="true">
-</div>
+    <div class="col-md-4">
+      <label class="form-label">Last Name <span class="requiredStar text-danger">*</span></label>
+      <input id="newLast" class="form-control" data-required="true" />
+      <div class="error-text" id="err-newLast" style="display:none">Last name is required</div>
+    </div>
 
-<div class="col-md-4">
-  <label class="form-label">Mobile2 <span class="requiredStar text-danger">*</span></label>
-  <input id="newLast" class="form-control" data-required="true">
-</div>
-<div class="col-md-4">
-  <label class="form-label">City <span class="requiredStar text-danger">*</span></label>
-  <input id="newFirst" class="form-control" data-required="true">
-</div>
+    <div class="col-md-6">
+      <label class="form-label">Mobile 1 <span class="requiredStar text-danger">*</span></label>
+      <input id="newMob1" class="form-control" maxlength="10" data-required="true" />
+      <div class="error-text" id="err-newMob1" style="display:none">Mobile 1 is required</div>
+    </div>
 
-<div class="col-md-4">
-  <label class="form-label">State <span class="requiredStar text-danger">*</span></label>
-  <input id="newLast" class="form-control" data-required="true">
+    <div class="col-md-6">
+      <label class="form-label">Mobile 2</label>
+      <input id="newMob2" class="form-control" maxlength="10" />
+      <div class="error-text" id="err-newMob2" style="display:none"></div>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">City <span class="requiredStar text-danger">*</span></label>
+      <input id="newCity" class="form-control" data-required="true" />
+      <div class="error-text" id="err-newCity" style="display:none">City is required</div>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">State <span class="requiredStar text-danger">*</span></label>
+      <input id="newState" class="form-control" data-required="true" />
+      <div class="error-text" id="err-newState" style="display:none">State is required</div>
+    </div>
+
+    <div class="col-md-6">
+      <label class="form-label">Pincode <span class="requiredStar text-danger">*</span></label>
+      <input id="newPin" class="form-control" maxlength="6" data-required="true" />
+      <div class="error-text" id="err-newPin" style="display:none">Pincode is required</div>
+    </div>
+  </div>
 </div>
-<div class="col-md-4">
-  <label class="form-label">Pincode <span class="requiredStar text-danger">*</span></label>
-  <input id="newFirst" class="form-control" data-required="true">
-</div>
-
-
-          </div>
-        </div>
-
         <div class="modal-footer">
           <button class="btn btn-success" id="saveContactBtn">Save Contact</button>
         </div>
@@ -382,44 +388,38 @@ const pagination = document.getElementById("pagination");
 
 let currentPage = 1;
 let pageSize = 10; 
-// currentList is already declared above and will be filled after fetch
-
+// REPLACE your existing displayContacts(list) with this (keeps same behavior)
 function displayContacts(list) {
   contactBody.innerHTML = "";
 
   const start = (currentPage - 1) * pageSize;
   const end = start + pageSize;
   const paginatedData = list.slice(start, end);
-  updateAccountCount();
 
+  // pass list to updateAccountCount so it does not rely on globals
+  updateAccountCount(list);
 
   paginatedData.forEach(c => {
-  contactBody.innerHTML += `
-    <tr>
-      <td>${c.title}</td>
-      <td>${c.firstName}</td>
-      <td>${c.lastName}</td>
-      <td>${c.mobile1}</td>
-      <td>${c.mobile2}</td>
-      <td>${c.address.city}</td>
-      <td>${c.address.state}</td>
-      <td>${c.address.pincode}</td>
-      <td>
-        <button class="btn btn-sm btn-warning me-1"
-                onclick="startEditContact('${c._id}')">
-          Edit
-        </button>
-        <button class="btn btn-sm btn-danger"
-                onclick="deleteContact('${c._id}')">
-          Delete
-        </button>
-      </td>
-    </tr>`;
-});
+    contactBody.innerHTML += `
+      <tr>
+        <td>${c.title}</td>
+        <td>${c.firstName}</td>
+        <td>${c.lastName}</td>
+        <td>${c.mobile1}</td>
+        <td>${c.mobile2}</td>
+        <td>${c.address?.city || ""}</td>
+        <td>${c.address?.state || ""}</td>
+        <td>${c.address?.pincode || ""}</td>
+        <td>
+          <button class="btn btn-sm btn-warning me-1" onclick="startEditContact('${c._id}')">Edit</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteContact('${c._id}')">Delete</button>
+        </td>
+      </tr>`;
+  });
 
   createPagination(list.length);
-  updateAccountCount();
 }
+
 
 function createPagination(totalItems) {
   const pageCount = Math.ceil(totalItems / pageSize);
@@ -461,27 +461,31 @@ function activateClearMode() {
   searchBtn.classList.add("btn-danger");
   searchBtn.innerHTML = '<i class="bi bi-x-lg me-1"></i> Clear';
 
-  // CLEAR button logic
   searchBtn.onclick = () => {
     searchField.value = "";
 
-    // ✅ Reload ALL contacts from backend (not local array)
+    // Reload ALL contacts from backend (only update master `contacts` here)
     fetch("http://localhost:5000/api/contacts")
-      .then(res => res.json())
-      .then(data => {
-        contacts = data;        // master list from MongoDB
-        currentList = contacts;
-        currentPage = 1;
-        displayContacts(currentList);
-        resetToSearchMode();    // switch button back to Search
+      .then(res => {
+        if (!res.ok) throw new Error("GET all returned " + res.status);
+        return res.json();
       })
-        .catch(err => {
-  console.error("Search API error:", err);
-  alert("Search failed. Please try again.");
-});
-  
+      .then(data => {
+        // update the master list so add/edit/delete still work as expected
+        contacts = data;
+        // render the fresh master list (not via currentList global)
+        currentPage = 1;
+        displayContacts(contacts);
+        resetToSearchMode();
+        console.log("Reloaded master contacts from backend (clear).");
+      })
+      .catch(err => {
+        console.error("Reload error:", err);
+        alert("Reload failed. Please try again.");
+      });
   };
 }
+
 
 // Change button to SEARCH mode
 function resetToSearchMode() {
@@ -491,25 +495,33 @@ function resetToSearchMode() {
   searchBtn.onclick = doSearch;
 }
 
+// doSearch()
 function doSearch() {
   const text = searchField.value.trim();
   if (text === "") return;
 
-  // Call backend search API
+  // call backend search API and use local variable only
   fetch(`http://localhost:5000/api/contacts/search?q=${encodeURIComponent(text)}`)
-    .then(res => res.json())
-    .then(data => {
-      currentList = data;      // filtered list from backend
+    .then(res => {
+      if (!res.ok) throw new Error("Search API returned " + res.status);
+      return res.json();
+    })
+    .then(searchResults => {
+      // render results (local variable) WITHOUT overwriting contacts/currentList
       currentPage = 1;
-      displayContacts(currentList);
-      activateClearMode();     // turn button to CLEAR
+      displayContacts(searchResults);
+      // turn button to CLEAR mode (clear will reload master list)
+      activateClearMode();
+      // optional: log so you can see the search result quickly in console
+      console.log("Search results (local):", searchResults);
     })
     .catch(err => {
       console.error("Search API error:", err);
       alert("Search failed. Please try again.");
     });
-}
+    console.log("Search requested for:", text);
 
+}
 
 // Initial button click = search
 searchBtn.onclick = doSearch;
@@ -564,17 +576,16 @@ advPanel.addEventListener('hidden.bs.collapse', () => {
   arrowIcon.classList.replace("bi-chevron-up", "bi-chevron-down");
 });
 
-function updateAccountCount() {
+// It now accepts the list you want to show counts for.
+function updateAccountCount(list) {
   const box = document.getElementById("accountCount");
+  const masterTotal = contacts.length; // master count (global)
 
-  if (currentList.length === contacts.length) {
-    // No search → show Total Contacts
-    box.innerHTML = `Total contacts <b>${contacts.length}</b>`;
-  } 
-  else {
-    // Search active → show Found X Contacts (out of Y)
-    box.innerHTML = 
-      `Found <b>${currentList.length}</b> Contacts out of <b>${contacts.length}</b>`;
+  // if list === contacts (same reference or same length) we show Total contacts
+  if (list === contacts || list.length === masterTotal) {
+    box.innerHTML = `Total contacts <b>${masterTotal}</b>`;
+  } else {
+    box.innerHTML = `Found <b>${list.length}</b> Contacts out of <b>${masterTotal}</b>`;
   }
 }
 
@@ -706,13 +717,17 @@ function deleteContact(id) {
     .then(res => res.json())
     .then(result => {
       if (result.success) {
-        contacts = contacts.filter(c => c._id !== id);
-        currentList = [...contacts]; 
-        displayContacts(currentList);
+    contacts = contacts.filter(c => c._id !== id);
+    currentList = [...contacts]; 
+    displayContacts(currentList);
 
-      } else {
-        alert("Delete failed");
-      }
+    // ✅ SHOW DELETE SUCCESS TOAST
+    showToast("✔ Contact deleted successfully!");
+
+} else {
+    alert("Delete failed");
+}
+
     })
     .catch(err => {
       console.error(err);
@@ -728,33 +743,30 @@ function showToast(message) {
   const toast = new bootstrap.Toast(toastEl);
   toast.show();
 }
-// ---- validation helper: mark modal invalid if ANY required field empty ----
 function validateModalRequiredFields() {
   const modal = document.getElementById("addContactModal");
-  const requiredEls = modal.querySelectorAll("[data-required='true']");
+  const mc = modal.querySelector(".modal-content");
+  const requiredEls = Array.from(modal.querySelectorAll("[data-required='true']"));
   let anyEmpty = false;
 
   requiredEls.forEach(el => {
-    // treat selects and inputs uniformly
     const val = (el.value || "").toString().trim();
-    if (!val) anyEmpty = true;
+    const errEl = document.getElementById("err-" + el.id);
+    if (!val) {
+      anyEmpty = true;
+      el.classList.add("is-invalid", "input-error");
+      if (errEl) { errEl.style.display = "block"; }
+    } else {
+      el.classList.remove("is-invalid", "input-error");
+      if (errEl) { errEl.style.display = "none"; }
+    }
   });
 
   if (anyEmpty) {
-    // add modal-invalid class to modal content to style all fields/labels/stars
-    modal.querySelector(".modal-content").classList.add("modal-invalid");
-
-    // also add per-field is-invalid to each empty element (so Bootstrap shows red)
-    requiredEls.forEach(el => {
-      const val = (el.value || "").toString().trim();
-      if (!val) el.classList.add("is-invalid");
-      else el.classList.remove("is-invalid");
-    });
+    mc.classList.add("modal-invalid");
     return false; // invalid
   } else {
-    // remove all invalid marks
-    modal.querySelector(".modal-content").classList.remove("modal-invalid");
-    requiredEls.forEach(el => el.classList.remove("is-invalid"));
+    mc.classList.remove("modal-invalid");
     return true; // valid
   }
 }
@@ -817,7 +829,11 @@ function afterSaveReset() {
 // SAVE / UPDATE CONTACT BUTTON
 // -----------------------------
 document.getElementById("saveContactBtn").addEventListener("click", () => {
-if (!validateModalRequiredFields()) return;
+  // 1) Validate required fields shown in modal
+  const valid = validateModalRequiredFields();
+  if (!valid) return; // stop if some required fields are empty
+
+  // 2) Build payload
   const contactData = {
     title: document.getElementById("newTitle").value,
     firstName: document.getElementById("newFirst").value.trim(),
@@ -831,47 +847,65 @@ if (!validateModalRequiredFields()) return;
     }
   };
 
-
-// If any field fails, stop saving
-if (!valid) {
-  return;
-}
-
-  // ✅ Mandatory check
+  // 3) Final sanity check (you already have validate, but keep this)
   if (!contactData.firstName || !contactData.mobile1) {
     alert("First Name and Mobile are required");
     return;
   }
 
-  // ✅ EDIT MODE
-  if (isEditing) {
+  // 4) Decide Edit or Add
+  if (isEditing && editingId) {
+    // Update existing contact
     fetch(`http://localhost:5000/api/contacts/${editingId}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(contactData)
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Update failed: " + res.status);
+        return res.json();
+      })
       .then(result => {
-        const index = contacts.findIndex(c => c._id === editingId);
-        contacts[index] = result.contact;
-        afterSaveReset();
+        // Expect server to return { success: true, contact: updatedContact }
+        if (result && result.success && result.contact) {
+          // update local master list
+          const index = contacts.findIndex(c => c._id === editingId);
+          if (index !== -1) contacts[index] = result.contact;
+          afterSaveReset();
+        } else {
+          throw new Error("Unexpected update response");
+        }
+      })
+      .catch(err => {
+        console.error("PUT error:", err);
+        alert("Update failed. See console for details.");
       });
-  }
-  // ✅ ADD MODE
-  else {
+  } else {
+    // Create new contact
     fetch("http://localhost:5000/api/contacts", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(contactData)
     })
-      .then(res => res.json())
+      .then(res => {
+        if (!res.ok) throw new Error("Save failed: " + res.status);
+        return res.json();
+      })
       .then(result => {
-        contacts.push(result.contact);
-        afterSaveReset();
+        // Expect server to return { success: true, contact: savedContact }
+        if (result && result.success && result.contact) {
+          contacts.push(result.contact);   // keep local master list
+          afterSaveReset();
+        } else {
+          throw new Error("Unexpected save response");
+        }
+      })
+      .catch(err => {
+        console.error("POST error:", err);
+        alert("Save failed. See console for details.");
       });
   }
 });
-
 
 document.getElementById("exportModal")
   .addEventListener("show.bs.modal", updateCSVPopup);
