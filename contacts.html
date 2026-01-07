@@ -490,11 +490,15 @@ const searchBtn = document.getElementById("basicSearchBtn");
 
 const API = "http://localhost:5000/api/contacts/paginate";
 
+const savedPageSize = Number(localStorage.getItem("pageSize")) || 3;
+
 const state = {
   page: 1,
-  limit: 3,
+  limit: savedPageSize,
   query: ""
 };
+pageSizeSelect.value = state.limit;
+
 
 function loadContacts() {
   let url = `${API}?page=${state.page}&limit=${state.limit}`;
@@ -607,10 +611,16 @@ searchInput.addEventListener("keydown", e => {
    PAGE SIZE
 ================================ */
 pageSizeSelect.onchange = () => {
-  state.limit = Number(pageSizeSelect.value);
+  const selectedSize = Number(pageSizeSelect.value);
+
+  // save to localStorage
+  localStorage.setItem("pageSize", selectedSize);
+
+  state.limit = selectedSize;
   state.page = 1;
   loadContacts();
 };
+
 /* ================================
    ADVANCED SEARCH (FIXED)
 ================================ */
@@ -724,7 +734,7 @@ function deleteContact(id) {
   })
     .then(res => res.json())
     .then(() => {
-      showToast("Contact deleted");
+      showToast("✔ Contact deleted Successfully!");
       loadContacts(); // reload page from backend
     });
 }
@@ -785,7 +795,6 @@ function resetModal() {
 
 saveContactBtn.onclick = () => {
 
-  // ✅ validation INSIDE function
   if (
     !newFirst.value ||
     !newLast.value ||
@@ -810,7 +819,6 @@ saveContactBtn.onclick = () => {
       pincode: newPin.value
     }
   };
-};
 
   const url = isEditing
     ? `http://localhost:5000/api/contacts/${editingId}`
@@ -825,10 +833,13 @@ saveContactBtn.onclick = () => {
   })
     .then(res => res.json())
     .then(() => {
-      showToast(isEditing ? "Contact updated" : "Contact added");
+      showToast(isEditing ? "✔ New Contact Updated Successfully!" : "✔ Contact added Successfully!");
       resetModal();
       loadContacts();
-    });
+    })
+    .catch(() => alert("Save failed"));
+};
+
 
 /* ================================
    INITIAL LOAD
