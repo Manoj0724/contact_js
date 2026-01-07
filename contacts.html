@@ -681,8 +681,6 @@ function resetModal() {
 }
 
 saveContactBtn.onclick = () => {
-
-  // ✅ validation INSIDE function
   if (
     !newFirst.value ||
     !newLast.value ||
@@ -729,15 +727,12 @@ saveContactBtn.onclick = () => {
 };
 
 function resetModal() {
-  // exit edit mode
   isEditing = false;
   editingId = null;
 
-  // reset modal title & button
   saveContactBtn.innerText = "Save Contact";
   document.querySelector(".modal-title").innerText = "Add New Contact";
 
-  // clear all inputs
   newTitle.value = "Mr";
   newFirst.value = "";
   newLast.value = "";
@@ -747,37 +742,50 @@ function resetModal() {
   newState.value = "";
   newPin.value = "";
 
-  // close modal
   const modal = bootstrap.Modal.getOrCreateInstance(addContactModal);
-modal.hide();
-
+  modal.hide();
 }
 
-  const url = isEditing
-    ? `http://localhost:5000/api/contacts/${editingId}`
-    : `http://localhost:5000/api/contacts`;
+// Advanced search elements
+const advTitle = document.getElementById("title");
+const advFirst = document.getElementById("firstName");
+const advLast = document.getElementById("lastName");
+const advMobile = document.getElementById("mobile");
+const advCity = document.getElementById("city");
+const advState = document.getElementById("state");
+const advPincode = document.getElementById("pincode");
 
-  const method = isEditing ? "PUT" : "POST";
+const applyFilterBtn = document.getElementById("applyFilter");
+const resetFilterBtn = document.getElementById("resetFilter");
 
-  fetch(url, {
-    method,
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload)
-  })
-    .then(res => res.json())
-    .then(() => {
-      showToast(isEditing ? "Contact updated" : "Contact added");
-      resetModal();
-      function showToast(message) {
-  document.getElementById("toastMessage").innerText = message;
+applyFilterBtn.onclick = () => {
+  const parts = [];
+  if (advTitle && advTitle.value) parts.push(advTitle.value);
+  if (advFirst && advFirst.value) parts.push(advFirst.value);
+  if (advLast && advLast.value) parts.push(advLast.value);
+  if (advMobile && advMobile.value) parts.push(advMobile.value);
+  if (advCity && advCity.value) parts.push(advCity.value);
+  if (advState && advState.value) parts.push(advState.value);
+  if (advPincode && advPincode.value) parts.push(advPincode.value);
 
-  const toastEl = document.getElementById("successToast");
-  const toast = new bootstrap.Toast(toastEl);
+  state.query = parts.join(" ").trim();
+  state.page = 1;
+  loadContacts();
+};
 
-  toast.show();
-}
-      loadContacts();
-    });
+resetFilterBtn.onclick = () => {
+  if (advTitle) advTitle.value = "";
+  if (advFirst) advFirst.value = "";
+  if (advLast) advLast.value = "";
+  if (advMobile) advMobile.value = "";
+  if (advCity) advCity.value = "";
+  if (advState) advState.value = "";
+  if (advPincode) advPincode.value = "";
+
+  state.query = "";
+  state.page = 1;
+  loadContacts();
+};
 
 
 
