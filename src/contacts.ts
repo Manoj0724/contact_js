@@ -566,7 +566,7 @@ if (saveContactBtn) {
         pincode: newPin.value,
       },
     };
-
+    
     const url: string = isEditing && editingId
       ? `http://localhost:5000/api/contacts/${editingId}`
       : `http://localhost:5000/api/contacts`;
@@ -594,9 +594,9 @@ if (saveContactBtn) {
       });
   };
 }
-
+     
 /* ================================
    INITIAL LOAD
 ================================ */
 
-loadContacts();
+loadContacts(); 
