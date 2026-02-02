@@ -268,7 +268,7 @@ if (pageSizeSelect) {
     state.page = 1;
     loadContacts();
   };
-}
+}     
 
 /* ================================
    ADVANCED SEARCH (TypeScript)

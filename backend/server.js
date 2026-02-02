@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const mongoose = require("mongoose");
 const cors = require("cors");
 const Contact = require("./Contact");
@@ -111,9 +112,12 @@ app.delete("/api/contacts/:id", async (req, res) => {
   res.json({ success: true });
 });
 
+
+
 /* ======================================================
    START SERVER
    ====================================================== */
-app.listen(5000, () => {
-  console.log("🚀 Server running on http://localhost:5000");
+app.listen(5000, '127.0.0.1', () => {
+  console.log("🚀 Server running on http://127.0.0.1:5000");
 });
+
