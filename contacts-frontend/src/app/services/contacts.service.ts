@@ -1,19 +1,44 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
+
+export interface ContactsApiResponse {
+  success: boolean;
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  contacts: any[];
+}
 
 @Injectable({
   providedIn: 'root'
 })
 export class ContactsService {
 
-  private API_URL = 'http://127.0.0.1:5000/api/contacts/paginate';
+  private API_URL = '/api/contacts/paginate';
 
   constructor(private http: HttpClient) {}
+getContacts(
+  page: number,
+  limit: number,
+  query: string = '',
+  sortBy: string = 'firstName',
+  sortOrder: 'asc' | 'desc' = 'asc'
+) {
+  const params: any = {
+    page,
+    limit,
+    sortBy,
+    sortOrder
+  };
 
-  getContacts(page: number, limit: number): Observable<any> {
-    return this.http.get<any>(
-      `${this.API_URL}?page=${page}&limit=${limit}`
-    );
+  if (query && query.trim()) {
+    params.q = query.trim();
   }
+
+  return this.http.get<any>('/api/contacts/paginate', { params });
+}
+
+
 }

@@ -44,9 +44,13 @@ app.get("/api/contacts/paginate", async (req, res) => {
     }
 
     const total = await Contact.countDocuments(filter);
-    const contacts = await Contact.find(filter)
-      .skip(skip)
-      .limit(limit);
+    const sortBy = req.query.sortBy || 'firstName';
+const sortOrder = req.query.sortOrder === 'desc' ? -1 : 1;
+
+const contacts = await Contact.find(filter)
+  .sort({ [sortBy]: sortOrder })
+  .skip(skip)
+  .limit(limit);
 
     res.json({
       success: true,

@@ -60,9 +60,11 @@
             "production": {
               "buildTarget": "contacts-frontend:build:production"
             },
-            "development": {
-              "buildTarget": "contacts-frontend:build:development"
-            }
+           "development": {
+  "buildTarget": "contacts-frontend:build:development",
+  "proxyConfig": "proxy.conf.json"
+}
+
           },
           "defaultConfiguration": "development"
         },
