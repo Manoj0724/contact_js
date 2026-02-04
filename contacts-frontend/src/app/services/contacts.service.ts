@@ -40,5 +40,21 @@ getContacts(
   return this.http.get<any>('/api/contacts/paginate', { params });
 }
 
+createContact(data: any) {
+  return this.http.post('/api/contacts', data);
+}
+
+updateContact(id: string, data: any) {
+  return this.http.put(`/api/contacts/${id}`, data);
+}
+
+deleteContact(id: string) {
+  return this.http.delete(`/api/contacts/${id}`);
+}
+
+getContactById(id: string) {
+  return this.http.get(`/api/contacts/${id}`);
+}
+
 
 }

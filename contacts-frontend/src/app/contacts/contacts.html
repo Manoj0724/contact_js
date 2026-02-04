@@ -1,8 +1,7 @@
 <div class="container mt-4">
-  <h3>Contacts</h3>
-
-  <div class="row mb-3">
-    <div class="col-md-4">
+  <div class="row g-2 align-items-center mb-3">
+    <!-- SEARCH INPUT -->
+    <div class="col-md-7">
       <input
         class="form-control"
         placeholder="Search contacts..."
@@ -11,7 +10,8 @@
       />
     </div>
 
-    <div class="col-md-2">
+    <!-- SEARCH / CLEAR -->
+    <div class="col-md-1">
       <button
         class="btn w-100"
         [ngClass]="{
@@ -23,49 +23,74 @@
         {{ isSearchActive ? 'Clear' : 'Search' }}
       </button>
     </div>
+
+    <!-- NEW CONTACT -->
+    <div class="col-md-auto">
+      <button class="btn btn-success" (click)="openAdd()">
+        <i class="bi bi-person-plus"></i> New Contact
+      </button>
+    </div>
+
+    <!-- ADVANCED SEARCH -->
+    <div class="col-md-auto">
+      <button class="btn btn-outline-secondary" (click)="openAdvancedSearch()">
+        <i class="bi bi-sliders"></i> Advanced Search
+      </button>
+    </div>
+
+    <!-- EXPORT CSV -->
+    <div class="col-md-1">
+      <button class="btn btn-outline-primary w-100" (click)="exportCSV()">
+        <i class="bi bi-download"></i> CSV
+      </button>
+    </div>
   </div>
 
   <!-- SKELETON TABLE -->
-<div *ngIf="loading" class="table-responsive">
-  <table class="table table-bordered">
-    <tbody>
-      <tr class="skeleton-row" *ngFor="let _ of [1,2,3]">
-        <td><div class="skeleton skeleton-sm"></div></td>
-        <td><div class="skeleton skeleton-md"></div></td>
-        <td><div class="skeleton skeleton-lg"></div></td>
-        <td><div class="skeleton skeleton-sm"></div></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
+  <div *ngIf="loading()" class="table-responsive">
+    <table class="table table-bordered table-hover align-middle fixed-table">
+      <tbody>
+        <tr class="skeleton-row" *ngFor="let _ of [].constructor(limit)">
+          <td><div class="skeleton skeleton-sm"></div></td>
+          <td><div class="skeleton skeleton-md"></div></td>
+          <td><div class="skeleton skeleton-lg"></div></td>
+          <td><div class="skeleton skeleton-sm"></div></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
 
   <!-- TABLE -->
-  <div class="table-responsive" *ngIf="!loading">
+  <div class="table-responsive" *ngIf="!loading()">
     <table class="table table-bordered table-hover">
       <thead class="table-dark">
         <tr>
-          <th (click)="toggleSort()" style="cursor: pointer">
+          <th (click)="toggleSort()" title="Click to sort by First Name" style="cursor: pointer">
             First Name
-            <span *ngIf="sortOrder === 'asc'">⬆</span>
-            <span *ngIf="sortOrder === 'desc'">⬇</span>
+            <span *ngIf="sortOrder === 'asc'" class="bi bi-sort-alpha-down ms-1"></span>
+            <span *ngIf="sortOrder === 'desc'" class="bi bi-sort-alpha-up ms-1"></span>
           </th>
           <th>Last Name</th>
           <th>Mobile</th>
           <th>City</th>
+          <th class="text-center">Actions</th>
         </tr>
       </thead>
 
       <tbody>
-        <tr *ngFor="let c of contacts">
+        <tr *ngFor="let c of contacts()" class="fade-in-row">
           <td>{{ c.firstName }}</td>
           <td>{{ c.lastName }}</td>
           <td>{{ c.mobile1 }}</td>
           <td>{{ c.address?.city }}</td>
+          <td class="text-center text-nowrap">
+            <button class="btn btn-sm btn-primary me-1" (click)="onEdit(c)">Edit</button>
+            <button class="btn btn-sm btn-danger" (click)="onDelete(c._id)">Delete</button>
+          </td>
         </tr>
 
-        <tr *ngIf="contacts.length === 0">
-          <td colspan="4" class="text-center text-muted">No contacts found</td>
+        <tr *ngIf="contacts().length === 0">
+          <td colspan="5" class="text-center text-muted">No contacts found</td>
         </tr>
       </tbody>
     </table>
@@ -87,6 +112,7 @@
         </option>
       </select>
     </div>
+    <span class="text-muted small"> Page {{ page }} of {{ totalPages }} </span>
 
     <!-- PAGINATION -->
     <ul class="pagination mb-0">
@@ -104,5 +130,125 @@
         <button class="page-link" (click)="nextPage()">Next</button>
       </li>
     </ul>
+  </div>
+</div>
+<!-- MODAL -->
+<div class="modal fade show d-block" *ngIf="showModal">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <!-- HEADER -->
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {{ isEditMode ? 'Edit Contact' : 'Add Contact' }}
+        </h5>
+        <button class="btn-close" (click)="showModal = false"></button>
+      </div>
+
+      <!-- ADD / EDIT CONTACT MODAL -->
+      <div class="modal fade show d-block" *ngIf="showModal">
+        <div class="modal-dialog">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h5 class="modal-title">
+                {{ isEditMode ? 'Edit Contact' : 'Add Contact' }}
+              </h5>
+              <button class="btn-close" (click)="showModal = false"></button>
+            </div>
+
+            <div class="modal-body">
+              <input
+                class="form-control mb-2"
+                placeholder="First Name"
+                [(ngModel)]="form.firstName"
+              />
+
+              <input
+                class="form-control mb-2"
+                placeholder="Last Name"
+                [(ngModel)]="form.lastName"
+              />
+
+              <input class="form-control mb-2" placeholder="Mobile" [(ngModel)]="form.mobile1" />
+
+              <input class="form-control" placeholder="City" [(ngModel)]="form.city" />
+            </div>
+
+            <div class="modal-footer">
+              <button class="btn btn-secondary" (click)="showModal = false">Cancel</button>
+
+              <button class="btn btn-success" (click)="onSave()" [disabled]="!isFormValid()">
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- FOOTER (THIS IS STEP 1.5 LOCATION) -->
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="showModal = false">Cancel</button>
+
+        <!-- ✅ STEP 1.5 SAVE BUTTON -->
+        <button class="btn btn-success" (click)="onSave()" [disabled]="!isFormValid()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- ADVANCED SEARCH MODAL -->
+<div class="modal fade show d-block" *ngIf="showAdvancedSearch">
+  <div class="modal-dialog modal-md">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Advanced Search</h5>
+        <button class="btn-close" (click)="closeAdvancedSearch()"></button>
+      </div>
+
+      <div class="modal-body">
+        <input
+          class="form-control mb-2"
+          placeholder="First Name (letters only)"
+          [(ngModel)]="advancedSearch.firstName"
+          [class.is-invalid]="advancedErrors.firstName"
+        />
+
+        <input
+          class="form-control mb-2"
+          placeholder="Last Name (letters only)"
+          [(ngModel)]="advancedSearch.lastName"
+          [class.is-invalid]="advancedErrors.lastName"
+        />
+
+        <input
+          class="form-control mb-2"
+          placeholder="Mobile (10 digits)"
+          [(ngModel)]="advancedSearch.mobile"
+          [class.is-invalid]="advancedErrors.mobile"
+        />
+
+        <input
+          class="form-control"
+          placeholder="City (letters only)"
+          [(ngModel)]="advancedSearch.city"
+          [class.is-invalid]="advancedErrors.city"
+        />
+
+        <div
+          class="text-danger mt-2"
+          *ngIf="
+            advancedErrors.firstName ||
+            advancedErrors.lastName ||
+            advancedErrors.mobile ||
+            advancedErrors.city
+          "
+        >
+          ❌ Please enter valid data
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" (click)="closeAdvancedSearch()">Cancel</button>
+
+        <button class="btn btn-primary" (click)="applyAdvancedSearch()">Apply Search</button>
+      </div>
+    </div>
   </div>
 </div>
